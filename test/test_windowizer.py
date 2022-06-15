@@ -1,6 +1,6 @@
 import unittest
 
-from custom_pipeline_elements import Windowizer, window_maker
+from Windowizer import Windowizer, window_maker
 
 class TestWindowizer(unittest.TestCase):
 
