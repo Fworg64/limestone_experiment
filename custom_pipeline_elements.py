@@ -11,10 +11,10 @@ class SampleScaler:
     def __init__(self):
        pass
 
-    def fit(self,x):
-       pass
+    def fit(self, x, y=None, **fit_params):
+       return self
 
-    def transform(self,x):
+    def transform(self, x):
        u = np.expand_dims(np.mean(x,axis = 1), axis = -1)
        s = np.expand_dims(np.std(x,axis = 1), axis = -1)
        z = (x - u) / s
@@ -29,10 +29,11 @@ class ChannelScaler:
     def __init__(self, num_channels=1):
       self.num_channels = num_channels
 
-    def fit(self, x):
+    def fit(self, x, y=None, **fit_params):
       dims = np.shape(x)
       if dims[1] % self.num_channels != 0:
         raise IndexError("Number of features must be divisable by number of channels!")
+      return self
       
     def transform(self, x):
       z = np.array(x)
@@ -62,10 +63,11 @@ class FFTMag:
       if power not in self.recognized_powers:
         raise ValueError("power param must be in %s" % (str(recognized_powers)))
 
-    def fit(self, x):
+    def fit(self, x, y=None, **fit_params):
       dims = np.shape(x)
       if dims[1] % self.num_channels != 0:
         raise IndexError("Number of features must be divisable by number of channels!")
+      return self
 
 
     def transform(self, x):
