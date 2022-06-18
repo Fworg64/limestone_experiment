@@ -57,6 +57,9 @@ for sens, dataset in full_sensor_data_sets.items():
     app_data_sets["%s %s" % (sens, feature)] = (np.array(data_X), np.array(data_Y))
       
 # Build preprocessing lists for pipeline
+# scale1: [std, samp, chan, none]
+# freq_transform: [abs(rfft()), abs(rfft()).^2, sqrt(abs(rfft())), none]
+# scale2: [std, samp, chan, none]
 
 
 # Build pipeline

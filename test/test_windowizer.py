@@ -1,6 +1,6 @@
 import unittest
 
-from Windowizer import Windowizer, window_maker
+from windowizer import Windowizer, window_maker
 
 class TestWindowizer(unittest.TestCase):
 
@@ -13,6 +13,6 @@ class TestWindowizer(unittest.TestCase):
     data, labels = windower.windowize(my_data, my_labels)
     self.assertEqual(len(data), len(labels))
     self.assertLessEqual(len(data), len(my_data)/window_size)
-    print("Made %d samples and matching labels out of %.2f possible" % 
-           (len(data), len(my_data)/window_size))
+    #print("Made %d samples and matching labels out of %.2f possible" % 
+    #       (len(data), len(my_data)/window_size))
     
