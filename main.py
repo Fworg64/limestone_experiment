@@ -15,14 +15,14 @@ from dataloading.loaders import load_strain_gauge_limestone, load_cap_limestone
 from windowizer import Windowizer, window_maker
 from custom_pipeline_elements import SampleScaler, ChannelScaler, FFTMag
 
-number_parallel_jobs = 6
+number_parallel_jobs = 40
 
-window_duration = 0.1 # seconds
+window_duration = 0.2 # seconds
 window_overlap  = 0.5 # ratio of overlap [0,1)
 window_shape    = "boxcar" # from scipy.signal.windows
 
-number_cross_validations = 30
-my_test_size = 0.25
+number_cross_validations = 100
+my_test_size = 0.75
 
 # Load data
 cap_fs = 400 # Samples per second for each channel
@@ -79,26 +79,28 @@ scalings1 = [("FeatureScaler1", StandardScaler()), ("ScaleControl1", None)]
 scalings2 = [("FeatureScaler2", StandardScaler()), ("ScaleControl2", None)]
 freq_transforms = [('FFT_Mag', FFTMag(4)), ('FFT_MagSq', FFTMag(4,"SQUARE")),
                    ('FFT_MagRt', FFTMag(4,"SQRT")), ("FreqControl", None)]
+classifiers = [('rbf_svm', svm.SVC(class_weight='balanced'))] #, ('linear_svm', svm.LinearSVC(class_weight='balanced', max_iter=10000))]
 
 #pdb.set_trace()
 # Do experiment, record data to list
 results = [["application", "num_splits", "num_samples", "test_ratio",
-            "window_duration", "window_overlap", "window_shape"
-            "stand1", "fft", "stand2", "mean_score", "std_dev"]]
+            "window_duration", "window_overlap", "window_shape",
+            "stand1", "fft", "stand2", "classifier", "mean_score", "std_dev"]]
 for name, (data_X, data_Y) in app_data_sets.items():
  for ft in freq_transforms:
   for sc1 in scalings1:
    for sc2 in scalings2:
-     cross_val = ShuffleSplit(n_splits=number_cross_validations, test_size=my_test_size, 
-                              random_state = 711711)
-     my_pipeline = Pipeline([sc1, ft, sc2, ('svc', svm.SVC(class_weight='balanced'))])
-     scores = cross_val_score(my_pipeline, data_X, data_Y, cv=cross_val,
-                               scoring='f1_macro', n_jobs=number_parallel_jobs)
-     results.append([name, str(number_cross_validations), str(data_X.shape[0]), str(my_test_size),
-                     str(window_duration), str(window_overlap), window_shape,
-                     my_pipeline.steps[0][0], my_pipeline.steps[1][0], my_pipeline.steps[2][0],
-                     str(scores.mean()), str(scores.std())])
-     print(".", end='', flush=True)
+    for cls in classifiers:
+      cross_val = ShuffleSplit(n_splits=number_cross_validations, test_size=my_test_size, 
+                               random_state = 711711)
+      my_pipeline = Pipeline([sc1, ft, sc2, cls])
+      scores = cross_val_score(my_pipeline, data_X, data_Y, cv=cross_val,
+                                scoring='f1_macro', n_jobs=number_parallel_jobs)
+      results.append([name, str(number_cross_validations), str(data_X.shape[0]), str(my_test_size),
+                      str(window_duration), str(window_overlap), window_shape,
+                      my_pipeline.steps[0][0], my_pipeline.steps[1][0], my_pipeline.steps[2][0],
+                      my_pipeline.steps[3][0], str(scores.mean()), str(scores.std())])
+      print(".", end='', flush=True)
 
 that_time = time.time()
 print(" Done! Took {0} sec; Saving data...".format(that_time - this_time))
