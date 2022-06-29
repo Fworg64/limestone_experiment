@@ -68,8 +68,7 @@ for sens, dataset in full_sensor_data_sets.items():
 # scale2: [std, samp, chan, none]
 
 that_time = time.time()
-print("Data loaded in {0} sec; performing experiments".format(that_time - this_time),
-      end='', flush=True)
+print("Data loaded in {0} sec; performing experiments".format(that_time - this_time))
 this_time = time.time()
 # Build pipeline
 scalings1 = [("FeatureScaler1", StandardScaler()), ("ScaleControl1", None)]
@@ -84,7 +83,7 @@ results = [["application", "num_splits", "num_samples", "test_ratio",
             "window_duration", "window_overlap", "window_shape",
             "stand1", "fft", "stand2", "classifier", "mean_score", "std_dev"]]
 for name, (data_X, data_Y) in app_data_sets.items():
- for ft in [freq_transforms[0]]:
+ for ft in freq_transforms:
   for sc1 in [scalings1[1]]:
    for sc2 in [scalings2[0]]:
     for cls in classifiers:
@@ -96,9 +95,11 @@ for name, (data_X, data_Y) in app_data_sets.items():
       my_pipeline.fit(x_train, y_train)
       y_test_pred = my_pipeline.predict(x_test)
       test_cmat = confusion_matrix(y_test, y_test_pred, normalize="true") 
+      test_f1_score =  f1_score(y_test, y_test_pred, average='macro')
       with np.printoptions(precision=4, suppress=True):
           print("Confusion matrix for {0}:".format((name, ft, sc1, sc2, cls)))
           print(test_cmat)
+          print("F1 score: {0}".format(test_f1_score))
 
       #scores = cross_val_score(my_pipeline, data_X, data_Y, cv=cross_val,
       #                          scoring='f1_macro', n_jobs=number_parallel_jobs)
