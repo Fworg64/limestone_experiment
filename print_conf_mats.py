@@ -4,7 +4,7 @@ import os
 
 from sklearn import svm
 from sklearn.model_selection import train_test_split, ShuffleSplit, cross_val_score
-from sklearn.metrics import confusion_matrix, f1_score
+from sklearn.metrics import confusion_matrix, f1_score, accuracy_score
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -94,12 +94,14 @@ for name, (data_X, data_Y) in app_data_sets.items():
                                           data_X, data_Y, test_size=my_test_size, random_state=711711)
       my_pipeline.fit(x_train, y_train)
       y_test_pred = my_pipeline.predict(x_test)
-      test_cmat = confusion_matrix(y_test, y_test_pred, normalize="true") 
-      test_f1_score =  f1_score(y_test, y_test_pred, average='macro')
+      test_cmat = confusion_matrix(y_test, y_test_pred, normalize="pred") # good corr w/ f1 score
+      test_f1_score  = f1_score(y_test, y_test_pred, average='macro')
+      test_acc_score = accuracy_score(y_test, y_test_pred)
       with np.printoptions(precision=4, suppress=True):
           print("Confusion matrix for {0}:".format((name, ft, sc1, sc2, cls)))
           print(test_cmat)
           print("F1 score: {0}".format(test_f1_score))
+          print("Accuracy: {0}".format(test_acc_score))
 
       #scores = cross_val_score(my_pipeline, data_X, data_Y, cv=cross_val,
       #                          scoring='f1_macro', n_jobs=number_parallel_jobs)
